@@ -6,14 +6,13 @@ require("dotenv").config();
 
 const app = express();
 
-// Middleware
 app.use(express.json());
 app.use(cors());
 
-// ✅ Serve frontend folder (IMPORTANT FIX)
-app.use(express.static(path.join(__dirname, "../frontend")));
+// ✅ FIXED: frontend inside backend
+app.use(express.static(path.join(__dirname, "frontend")));
 
-// MongoDB Connection
+// MongoDB
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("DB Connected"))
 .catch(err => console.log("DB Error:", err));
@@ -22,9 +21,9 @@ mongoose.connect(process.env.MONGO_URI)
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/tasks", require("./routes/tasks"));
 
-// ✅ Default route (opens login page)
+// Default route
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/index.html"));
+    res.sendFile(path.join(__dirname, "frontend", "index.html"));
 });
 
 // Server
