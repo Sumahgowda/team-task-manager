@@ -1,0 +1,147 @@
+<<!DOCTYPE html>
+<html>
+<head>
+  <title>Auth</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 300px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .toggle {
+      margin-top: 10px;
+      cursor: pointer;
+      color: #007bff;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2 id="title">Login</h2>
+
+  <input id="name" placeholder="Name" style="display:none;">
+  <input id="email" placeholder="Email">
+<div style="position: relative;">
+  <input id="password" type="password" placeholder="Password"
+         style="width: 100%; padding-right: 40px;">
+
+  <span onclick="togglePassword()"
+        style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
+        cursor:pointer; user-select:none;">
+    👁️
+  </span>
+</div>
+
+  <select id="role" style="display:none;">
+    <option value="Admin">Admin</option>
+    <option value="Member">Member</option>
+  </select>
+
+  <button onclick="submitForm()">Submit</button>
+
+  <div class="toggle" onclick="toggleForm()">Switch to Register</div>
+</div>
+
+<script>
+let isLogin = true;
+
+function toggleForm() {
+  isLogin = !isLogin;
+
+  document.getElementById("title").innerText = isLogin ? "Login" : "Register";
+  document.getElementById("name").style.display = isLogin ? "none" : "block";
+  document.getElementById("role").style.display = isLogin ? "none" : "block";
+
+  document.querySelector(".toggle").innerText =
+    isLogin ? "Switch to Register" : "Switch to Login";
+}
+
+async function submitForm() {
+  const url = isLogin
+    ? "http://localhost:5000/api/auth/login"
+    : "http://localhost:5000/api/auth/signup";
+
+  const body = isLogin
+    ? {
+        email: email.value,
+        password: password.value
+      }
+    : {
+        name: name.value,
+        email: email.value,
+        password: password.value,
+        role: role.value
+      };
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+
+  if (isLogin) {
+    if (!data.token) {
+      alert("Login failed");
+      return;
+    }
+    localStorage.setItem("token", data.token);
+    window.location = "dashboard.html";
+  } else {
+    alert("Registered successfully! Now login.");
+    toggleForm();
+  }
+}
+function togglePassword() {
+  const pass = document.getElementById("password");
+
+  if (pass.type === "password") {
+    pass.type = "text";
+  } else {
+    pass.type = "password";
+  }
+}
+</script>
+
+</body>
+</html>
