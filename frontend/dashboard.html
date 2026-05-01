@@ -36,10 +36,6 @@
       margin: 3px;
     }
 
-    button:hover {
-      opacity: 0.8;
-    }
-
     .task {
       background: white;
       padding: 10px;
@@ -52,14 +48,11 @@
       font-weight: bold;
       margin-left: 5px;
     }
-
-    hr {
-      margin: 20px 0;
-    }
   </style>
 </head>
 
 <body>
+
 <button onclick="logout()" style="float:right; background:red;">Logout</button>
 <h2>Task Dashboard</h2>
 
@@ -73,19 +66,18 @@
 <div id="tasks"></div>
 
 <script>
+const BASE_URL = "https://team-task-manager-production-fda4.up.railway.app";
+
 async function createTask() {
   const title = document.getElementById("title").value;
 
-  if (!title) {
-    alert("Enter task title");
-    return;
-  }
+  if (!title) return alert("Enter task title");
 
-  await fetch("http://localhost:5000/api/tasks", {
+  await fetch(`${BASE_URL}/api/tasks`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token")
+      Authorization: `Bearer ${localStorage.getItem("token")}`
     },
     body: JSON.stringify({ title })
   });
@@ -95,11 +87,11 @@ async function createTask() {
 }
 
 async function updateStatus(id, status) {
-  await fetch(`http://localhost:5000/api/tasks/${id}`, {
+  await fetch(`${BASE_URL}/api/tasks/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token")
+      Authorization: `Bearer ${localStorage.getItem("token")}`
     },
     body: JSON.stringify({ status })
   });
@@ -108,9 +100,9 @@ async function updateStatus(id, status) {
 }
 
 async function loadTasks() {
-  const res = await fetch("http://localhost:5000/api/tasks", {
+  const res = await fetch(`${BASE_URL}/api/tasks`, {
     headers: {
-      Authorization: localStorage.getItem("token")
+      Authorization: `Bearer ${localStorage.getItem("token")}`
     }
   });
 
@@ -128,11 +120,12 @@ async function loadTasks() {
     `).join("");
 }
 
-loadTasks();
 function logout() {
   localStorage.removeItem("token");
   window.location = "index.html";
 }
+
+loadTasks();
 </script>
 
 </body>
