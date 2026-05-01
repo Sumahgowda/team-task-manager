@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>Auth</title>
@@ -60,16 +60,17 @@
 
   <input id="name" placeholder="Name" style="display:none;">
   <input id="email" placeholder="Email">
-<div style="position: relative;">
-  <input id="password" type="password" placeholder="Password"
-         style="width: 100%; padding-right: 40px;">
 
-  <span onclick="togglePassword()"
-        style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
-        cursor:pointer; user-select:none;">
-    👁️
-  </span>
-</div>
+  <div style="position: relative;">
+    <input id="password" type="password" placeholder="Password"
+           style="width: 100%; padding-right: 40px;">
+
+    <span onclick="togglePassword()"
+          style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
+          cursor:pointer; user-select:none;">
+      👁️
+    </span>
+  </div>
 
   <select id="role" style="display:none;">
     <option value="Admin">Admin</option>
@@ -82,6 +83,8 @@
 </div>
 
 <script>
+const BASE_URL = "https://team-task-manager-production-fda4.up.railway.app";
+
 let isLogin = true;
 
 function toggleForm() {
@@ -97,8 +100,8 @@ function toggleForm() {
 
 async function submitForm() {
   const url = isLogin
-    ? "http://localhost:5000/api/auth/login"
-    : "http://localhost:5000/api/auth/signup";
+    ? `${BASE_URL}/api/auth/login`
+    : `${BASE_URL}/api/auth/signup`;
 
   const body = isLogin
     ? {
@@ -125,6 +128,7 @@ async function submitForm() {
       alert("Login failed");
       return;
     }
+
     localStorage.setItem("token", data.token);
     window.location = "dashboard.html";
   } else {
@@ -132,16 +136,13 @@ async function submitForm() {
     toggleForm();
   }
 }
+
 function togglePassword() {
   const pass = document.getElementById("password");
-
-  if (pass.type === "password") {
-    pass.type = "text";
-  } else {
-    pass.type = "password";
-  }
+  pass.type = pass.type === "password" ? "text" : "password";
 }
 </script>
 
 </body>
+</html>
 </html>
