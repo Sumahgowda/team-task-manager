@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    h3 {
+      color: #555;
+    }
+
+    input {
+      padding: 8px;
+      width: 200px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 8px 12px;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 3px;
+    }
+
+    .task {
+      background: white;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .status {
+      font-weight: bold;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+<button onclick="logout()" style="float:right; background:red;">Logout</button>
+<h2>Task Dashboard</h2>
+
+<h3>Create Task</h3>
+<input id="title" placeholder="Task title">
+<button style="background:#007bff" onclick="createTask()">Add</button>
+
+<hr>
+
+<h3>All Tasks</h3>
+<div id="tasks"></div>
+
+<script>
+const BASE_URL = "https://team-task-manager-production-fda4.up.railway.app";
+
+async function createTask() {
+  const title = document.getElementById("title").value;
+
+  if (!title) return alert("Enter task title");
+
+  await fetch(`${BASE_URL}/api/tasks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    },
+    body: JSON.stringify({ title })
+  });
+
+  document.getElementById("title").value = "";
+  loadTasks();
+}
+
+async function updateStatus(id, status) {
+  await fetch(`${BASE_URL}/api/tasks/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    },
+    body: JSON.stringify({ status })
+  });
+
+  loadTasks();
+}
+
+async function loadTasks() {
+  const res = await fetch(`${BASE_URL}/api/tasks`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    }
+  });
+
+  const tasks = await res.json();
+
+  document.getElementById("tasks").innerHTML =
+    tasks.map(t => `
+      <div class="task">
+        <b>${t.title}</b> → <span class="status">${t.status}</span>
+        <br/>
+        <button style="background:gray" onclick="updateStatus('${t._id}', 'Pending')">Pending</button>
+        <button style="background:orange" onclick="updateStatus('${t._id}', 'In Progress')">In Progress</button>
+        <button style="background:green" onclick="updateStatus('${t._id}', 'Done')">Done</button>
+      </div>
+    `).join("");
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  window.location = "index.html";
+}
+
+loadTasks();
+</script>
+
+</body>
+</html>
