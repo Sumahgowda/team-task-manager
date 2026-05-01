@@ -1,17 +1,30 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = function(role) {
+module.exports = function (role) {
   return (req, res, next) => {
-    const token = req.headers.authorization;
+    try {
+      const authHeader = req.headers.authorization;
 
-    if (!token) return res.send("No token");
+      if (!authHeader) {
+        return res.status(401).json({ message: "No token provided" });
+      }
 
-    const decoded = jwt.verify(token, "secret");
+      // REMOVE "Bearer " prefix safely
+      const token = authHeader.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
 
-    if (role && decoded.role !== role)
-      return res.send("Access denied");
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
 
-    req.user = decoded;
-    next();
+      if (role && decoded.role !== role) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      req.user = decoded;
+      next();
+
+    } catch (err) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
   };
 };
